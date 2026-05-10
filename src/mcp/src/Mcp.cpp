@@ -12,7 +12,7 @@ Mcp::Mcp() : rclcpp::Node("mcp") {
 
 void Mcp::initialise() const {
     auto initialContact = std_msgs::msg::String();
-    initialContact.data = "Hello user, thank you for logging in.";
+    initialContact.data = "Hello user, thank you for logging in.\nPlease set the process ID for mTron and tell me, then enable my instantiation rights so I can deploy him to save the Grid!";
     m_mcp_coms_pub->publish(initialContact);
 }
 
