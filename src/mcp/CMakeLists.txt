@@ -9,9 +9,10 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
+find_package(grid_interfaces REQUIRED)
 
 add_executable(mcp src/main.cpp src/Mcp.cpp)
-ament_target_dependencies(mcp rclcpp std_msgs)
+ament_target_dependencies(mcp rclcpp std_msgs grid_interfaces)
 
 target_include_directories(mcp PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>

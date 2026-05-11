@@ -1,5 +1,4 @@
-string prcess_name
-uint8 process_id
+string process_name
+int32 process_id
 ---
-bool success
 string message
