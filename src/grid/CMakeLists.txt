@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(user)
+project(grid)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
@@ -11,15 +11,15 @@ find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(grid_interfaces REQUIRED)
 
-add_executable(user src/main.cpp src/User.cpp src/UserSubsystem.cpp)
-ament_target_dependencies(user rclcpp std_msgs grid_interfaces)
+add_executable(grid src/main.cpp src/Grid.cpp)
+ament_target_dependencies(grid rclcpp std_msgs grid_interfaces)
 
-target_include_directories(user PUBLIC
+target_include_directories(grid PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
-target_compile_features(user PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
+target_compile_features(grid PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
 
-install(TARGETS user
+install(TARGETS grid
   DESTINATION lib/${PROJECT_NAME})
 
 ament_package()
