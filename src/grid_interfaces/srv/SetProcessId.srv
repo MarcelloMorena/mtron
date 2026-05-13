@@ -1,4 +1,0 @@
-string process_name
-int32 process_id
----
-string message

@@ -1,6 +1,9 @@
+#include <string>
+#include <vector>
+
 #include "User.hpp"
 #include "UserSubsystem.hpp"
-//#include <string>
+
 //#include <chrono>
 
 /**
@@ -14,6 +17,7 @@ User::User() : rclcpp::Node("user")
     //                         std::bind(&User::receive_mcp_coms, this, std::placeholders::_1));
 
     m_getMessagesClient = this->create_client<grid_interfaces::srv::GetMessages>("get_messages");
+    RCLCPP_INFO(this->get_logger(), "User started.");
     initialise();
 }
 
@@ -57,7 +61,7 @@ void User::menu()
 void User::getMessages()
 {
     auto request = std::make_shared<grid_interfaces::srv::GetMessages::Request>();
-    RCLCPP_INFO(this->get_logger(), "Getting messages from Grid");
+    RCLCPP_INFO(this->get_logger(), "Getting messages from the Grid.");
 
     m_getMessagesClient->async_send_request(
         request,
@@ -71,11 +75,16 @@ void User::getMessages()
  */
 void User::handleGetMessagesResponse(rclcpp::Client<grid_interfaces::srv::GetMessages>::SharedFuture future)
 {
-    auto response = future.get();
-    for (const auto &msg : response->messages)
-    {
-        std::cout << msg << "\n";
-    }
+    RCLCPP_INFO(this->get_logger(), "Messages returned from the Grid.");
+
+    std::vector<std::string> messages = future.get()->messages;
+    m_userSubsystem.printMessages(messages);
+
+    // auto response = future.get();
+    // for (const auto &msg : response->messages)
+    // {
+    //     std::cout << msg << "\n";
+    // }
     menu();
 }
 

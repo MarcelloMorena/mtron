@@ -3,9 +3,9 @@
 <package format="3">
   <name>grid</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
-  <maintainer email="marcello@todo.todo">marcello</maintainer>
-  <license>Apache-2.0</license>
+  <description>ENCOM Grid</description>
+  <maintainer email="a1774276@student.adelaide.edu.au">Marcello Morena</maintainer>
+  <license>Apache 2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
   <depend>rclcpp</depend>

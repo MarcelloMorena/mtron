@@ -2,10 +2,6 @@
 #include <string>
 #include <iostream>
 
-UserSubsystem::UserSubsystem() {
-
-}
-
 /**
  * Print welcome message
  */
@@ -50,5 +46,16 @@ int UserSubsystem::menu() {
         {
             std::cout << "Invalid menu option.\n";
         }
+    }
+}
+
+/**
+ * TODO: write doc
+ */
+void UserSubsystem::printMessages(std::vector<std::string> messages)
+{
+    for (auto const& msg : messages)
+    {
+        std::cout << msg << "\n";
     }
 }

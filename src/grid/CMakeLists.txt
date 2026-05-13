@@ -11,7 +11,7 @@ find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(grid_interfaces REQUIRED)
 
-add_executable(grid src/main.cpp src/Grid.cpp)
+add_executable(grid src/main.cpp src/Grid.cpp src/GridSubsystem.cpp)
 ament_target_dependencies(grid rclcpp std_msgs grid_interfaces)
 
 target_include_directories(grid PUBLIC
