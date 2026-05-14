@@ -1,6 +1,7 @@
 #include "UserSubsystem.hpp"
 
 #include <iostream>
+#include <limits>
 #include <string>
 
 /**
@@ -66,4 +67,20 @@ void UserSubsystem::printMessages(std::vector<std::string> messages)
     {
         std::cout << msg << "\n";
     }
+}
+
+int UserSubsystem::getProcessId()
+{
+    std::cout << "Enter process ID.\n";
+    int input;
+    
+    // Keep getting input until valid (i.e. is an int)
+    while(!(std::cin >> input))
+    {
+        std::cout << "Invalid input, please enter an integer.";
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    }
+
+    return input;
 }

@@ -13,6 +13,10 @@
 User::User() : rclcpp::Node("user")
 {
     m_getMessagesClient = this->create_client<grid_interfaces::srv::GetMessages>("get_messages");
+    m_gridActionClient = rclcpp_action::create_client<grid_interfaces::action::PerformTask>(
+        this,
+        "perform_task"
+    );
     
     RCLCPP_INFO(this->get_logger(), "User started.");
     initialise();
@@ -40,7 +44,8 @@ void User::menu()
         break;
 
     case 2:
-        // publish message to mcp_coms
+        // track process id
+        trackProcess();
         break;
 
     case 3:
@@ -80,4 +85,44 @@ void User::handleGetMessagesResponse(rclcpp::Client<grid_interfaces::srv::GetMes
     m_userSubsystem.printMessages(messages);
 
     menu();
+}
+
+void User::trackProcess()
+{
+    if(!m_gridActionClient->wait_for_action_server(std::chrono::seconds(5)))
+    {
+        RCLCPP_ERROR(this->get_logger(), "Grid action server not available after waiting.");
+    }
+
+    auto goalMsg = grid_interfaces::action::PerformTask::Goal();
+    goalMsg.process_id = m_userSubsystem.getProcessId();
+
+    auto sendGoalOptions = rclcpp_action::Client<grid_interfaces::action::PerformTask>::SendGoalOptions();
+    sendGoalOptions.goal_response_callback = std::bind(&User::goalResponseCallback, this, std::placeholders::_1);
+    sendGoalOptions.feedback_callback = std::bind(&User::feedbackCallback, this, std::placeholders::_1, std::placeholders::_2);
+    sendGoalOptions.result_callback = std::bind(&User::resultCallback, this, std::placeholders::_1);
+    m_gridActionClient->async_send_goal(goalMsg, sendGoalOptions);
+}
+
+void User::goalResponseCallback(rclcpp_action::ClientGoalHandle<grid_interfaces::action::PerformTask>::SharedPtr const &goalHandle)
+{
+    if(!goalHandle)
+    {
+        RCLCPP_INFO(this->get_logger(), "Invalid process ID!");
+        menu();
+    }
+    else
+    {
+        RCLCPP_INFO(this->get_logger(), "Calling action on Grid");
+    }
+}
+
+void User::feedbackCallback(rclcpp_action::ClientGoalHandle<grid_interfaces::action::PerformTask>::SharedPtr, std::shared_ptr<grid_interfaces::action::PerformTask::Feedback const> const feedback)
+{
+    // print feedback, sleep for 500ms, then erase with \r and spaces
+}
+
+void User::resultCallback(rclcpp_action::ClientGoalHandle<grid_interfaces::action::PerformTask>::WrappedResult const &result)
+{
+    // print final result, sleep for 500ms, then erase with \r and spaces
 }

@@ -11,4 +11,5 @@ class UserSubsystem {
         void welcome();
         int menu();
         void printMessages(std::vector<std::string> messages);
+        int getProcessId();
 };

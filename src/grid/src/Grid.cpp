@@ -25,6 +25,15 @@ Grid::Grid() : rclcpp::Node("grid")
         std::bind(&Grid::addProcessService, this, std::placeholders::_1, std::placeholders::_2)
     );
 
+    // Create perform_task action (for User)
+    m_performTaskActionServer = rclcpp_action::create_server<grid_interfaces::action::PerformTask>(
+        this,
+        "perform_task",
+        std::bind(&Grid::handleGoal, this, std::placeholders::_1, std::placeholders::_2),
+        std::bind(&Grid::handleCancel, this, std::placeholders::_1),
+        std::bind(&Grid::handleAccepted, this, std::placeholders::_1)
+    );
+
     RCLCPP_INFO(this->get_logger(), "Grid started.");
 }
 
@@ -67,4 +76,65 @@ void Grid::addProcessService(const std::shared_ptr<grid_interfaces::srv::AddProc
 
     // Return processId to Mcp
     response->process_id = processId;
+}
+
+rclcpp_action::GoalResponse Grid::handleGoal(
+    rclcpp_action::GoalUUID const& uuid,
+    std::shared_ptr<grid_interfaces::action::PerformTask::Goal const> goal)
+{
+    (void)uuid;
+    if(m_gridSubsystem.processExists(goal->process_id))
+    {
+        RCLCPP_INFO(this->get_logger(), "Received valid task request for process ID %d, accepting.", goal->process_id);
+        return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
+    }
+    RCLCPP_INFO(this->get_logger(), "Received invalid task request for process ID %d, rejecting.", goal->process_id);
+    return rclcpp_action::GoalResponse::REJECT;
+}
+
+rclcpp_action::CancelResponse Grid::handleCancel(
+    std::shared_ptr<rclcpp_action::ServerGoalHandle<grid_interfaces::action::PerformTask>> const goalHandle)
+{
+    RCLCPP_INFO(this->get_logger(), "Received request to cancel active process.");
+    (void)goalHandle;
+    return rclcpp_action::CancelResponse::ACCEPT;
+}
+
+void Grid::handleAccepted(
+    std::shared_ptr<rclcpp_action::ServerGoalHandle<grid_interfaces::action::PerformTask>> const goalHandle)
+{
+    std::thread{std::bind(&Grid::performTask, this, std::placeholders::_1), goalHandle}.detach();
+}
+
+void Grid::performTask(std::shared_ptr<rclcpp_action::ServerGoalHandle<grid_interfaces::action::PerformTask>> const goalHandle)
+{
+    rclcpp::Rate loopRate(2);
+    auto const goal = goalHandle->get_goal();
+    auto feedback = std::make_shared<grid_interfaces::action::PerformTask::Feedback>();
+    auto result = std::make_shared<grid_interfaces::action::PerformTask::Result>();
+    auto processId = goal->process_id;
+
+    for (int i = 0; i < 4; i++)
+    {
+        // If the action is cancelled finalise the path early (move tron) and return the path
+        if(goalHandle->is_canceling())
+        {
+            result->complete = m_gridSubsystem.finalisePath(processId);
+            goalHandle->canceled(result);
+            return;
+        }
+        // Next path segment
+        feedback->process_feedback = m_gridSubsystem.pathTrace();
+
+        // Publish feedback
+        goalHandle->publish_feedback(feedback);
+        loopRate.sleep();
+    }
+
+    if(rclcpp::ok())
+    {
+        result->complete = m_gridSubsystem.finalisePath(processId);
+        goalHandle->succeed(result);
+        RCLCPP_INFO(this->get_logger(), "Action successful");
+    }
 }

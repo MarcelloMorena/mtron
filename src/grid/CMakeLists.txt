@@ -10,9 +10,10 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(grid_interfaces REQUIRED)
+find_package(rclcpp_action REQUIRED)
 
 add_executable(grid src/main.cpp src/Grid.cpp src/GridSubsystem.cpp)
-ament_target_dependencies(grid rclcpp std_msgs grid_interfaces)
+ament_target_dependencies(grid rclcpp rclcpp_action std_msgs grid_interfaces)
 
 target_include_directories(grid PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>

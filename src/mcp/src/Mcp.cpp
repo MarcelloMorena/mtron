@@ -24,21 +24,21 @@ Mcp::Mcp() : rclcpp::Node("mcp")
     
     RCLCPP_INFO(this->get_logger(), "MCP started.");
 
-    // Add process_search.task to the Grid and publish initial HELP message
+    // Add Tron to the Grid and publish initial HELP message
     initialise();
 }
 
 /**
- * Add process_search.task to the Grid
+ * Add Tron to the Grid
  */
 void Mcp::initialise()
 {
-    RCLCPP_INFO(this->get_logger(), "Add process_search.task to the Grid.");
+    RCLCPP_INFO(this->get_logger(), "Adding Tron to the Grid.");
 
     // Set request.process_name and make a request to the Grid's add_process service.
     // sendInitialClientComs is the callback
     auto request = std::make_shared<grid_interfaces::srv::AddProcess::Request>();
-    request->process_name = "process_search.task";
+    request->process_name = "Tron";
     m_addGridProcessClient->async_send_request(
         request,
         std::bind(&Mcp::sendInitialClientComs, this, std::placeholders::_1)
@@ -46,13 +46,13 @@ void Mcp::initialise()
 }
 
 /**
- * Callback - post initial HELP message to the Grid after we have added process_search.task
+ * Callback - post initial HELP message to the Grid after we have added Tron
  */
 void Mcp::sendInitialClientComs(rclcpp::Client<grid_interfaces::srv::AddProcess>::SharedFuture future)
 {
     // Get process ID from Grid's add_process service future, construct initial HELP message and publish
     int32_t processId = future.get()->process_id;
-    RCLCPP_INFO(this->get_logger(), "Grid has sent back process ID %d for process_search.task. Publishing HELP message to the Grid.", processId);
+    RCLCPP_INFO(this->get_logger(), "Grid has sent back process ID %d for Tron. Publishing HELP message to the Grid.", processId);
 
     auto initialContact = std_msgs::msg::String();
     initialContact.data = m_mcpSubsystem.initialMessage(processId);

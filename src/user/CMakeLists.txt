@@ -8,11 +8,12 @@ endif()
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(rclcpp_action REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(grid_interfaces REQUIRED)
 
 add_executable(user src/main.cpp src/User.cpp src/UserSubsystem.cpp)
-ament_target_dependencies(user rclcpp std_msgs grid_interfaces)
+ament_target_dependencies(user rclcpp rclcpp_action std_msgs grid_interfaces)
 
 target_include_directories(user PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
