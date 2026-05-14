@@ -1,6 +1,9 @@
 #include "McpSubsystem.hpp"
 
-std::string McpSubsystem::initialMessage(const int32_t processSearchTaskId) const
+/**
+ * TODO: write doc with @param and @return
+ */
+std::string McpSubsystem::initialMessage(int32_t const processSearchTaskId) const
 {
     std::string msg =
         "Hello user, thank you for logging in.\n"

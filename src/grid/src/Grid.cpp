@@ -39,20 +39,21 @@ void Grid::receiveGridComs(const std_msgs::msg::String::SharedPtr msg) {
 }
 
 /**
- * Callback for requests made to the get_messages service.
+ * Callback for requests made to the get_messages service. Return messages
  */
 void Grid::getMessagesService(std::shared_ptr<grid_interfaces::srv::GetMessages::Request> request,
                                 std::shared_ptr<grid_interfaces::srv::GetMessages::Response> response)
 {
+    RCLCPP_INFO(this->get_logger(), "User requested messages, sending.");
+
     // Disable compiler warnings for unused request variable
     (void)request;
-    RCLCPP_INFO(this->get_logger(), "User requested messages, sending.");
     response->messages = m_gridSubsystem.getMessages();
-    //response->messages = m_msgs;
 }
 
 /**
- * Callback for request made by Mcp to add_process service
+ * Callback for request made by Mcp to add_process service.
+ * Adds input process name to processes list with a randomly generated ID (no ID doubles)
  */
 void Grid::addProcessService(const std::shared_ptr<grid_interfaces::srv::AddProcess::Request> request,
                                 std::shared_ptr<grid_interfaces::srv::AddProcess::Response> response)

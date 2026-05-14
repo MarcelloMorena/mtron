@@ -1,6 +1,7 @@
 #include "UserSubsystem.hpp"
-#include <string>
+
 #include <iostream>
+#include <string>
 
 /**
  * Print welcome message
@@ -16,16 +17,21 @@ void UserSubsystem::welcome() {
 
 /**
  * Print menu options and get user input
+ * 
+ * TODO: write @return
  */
 int UserSubsystem::menu() {
     std::string menuOptions = "1 - Check messages\n"
                               "2 - Send message\n"
                               "3 - Perform task\n";
     std::cout << menuOptions;
-
+    
     std::string input;
 
+    // Get user input, loop until input is valid
     while(true){
+
+        // If input stream is invalid
         if(!std::getline(std::cin, input)){
             return -1;
         }
@@ -50,7 +56,9 @@ int UserSubsystem::menu() {
 }
 
 /**
- * TODO: write doc
+ * Print Grid messages to screen
+ * 
+ * TODO: write @param
  */
 void UserSubsystem::printMessages(std::vector<std::string> messages)
 {
