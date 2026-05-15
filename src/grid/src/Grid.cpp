@@ -25,14 +25,13 @@ Grid::Grid() : rclcpp::Node("grid")
         std::bind(&Grid::addProcessService, this, std::placeholders::_1, std::placeholders::_2)
     );
 
-    // Create perform_task action (for User)
-    m_performTaskActionServer = rclcpp_action::create_server<grid_interfaces::action::PerformTask>(
+    // Create track_process action (for User)
+    m_trackProcessActionServer = rclcpp_action::create_server<grid_interfaces::action::TrackProcess>(
         this,
-        "perform_task",
+        "track_process",
         std::bind(&Grid::handleGoal, this, std::placeholders::_1, std::placeholders::_2),
         std::bind(&Grid::handleCancel, this, std::placeholders::_1),
-        std::bind(&Grid::handleAccepted, this, std::placeholders::_1)
-    );
+        std::bind(&Grid::handleAccepted, this, std::placeholders::_1));
 
     RCLCPP_INFO(this->get_logger(), "Grid started.");
 }
@@ -80,7 +79,7 @@ void Grid::addProcessService(const std::shared_ptr<grid_interfaces::srv::AddProc
 
 rclcpp_action::GoalResponse Grid::handleGoal(
     rclcpp_action::GoalUUID const& uuid,
-    std::shared_ptr<grid_interfaces::action::PerformTask::Goal const> goal)
+    std::shared_ptr<grid_interfaces::action::TrackProcess::Goal const> goal)
 {
     (void)uuid;
     if(m_gridSubsystem.processExists(goal->process_id))
@@ -93,7 +92,7 @@ rclcpp_action::GoalResponse Grid::handleGoal(
 }
 
 rclcpp_action::CancelResponse Grid::handleCancel(
-    std::shared_ptr<rclcpp_action::ServerGoalHandle<grid_interfaces::action::PerformTask>> const goalHandle)
+    std::shared_ptr<rclcpp_action::ServerGoalHandle<grid_interfaces::action::TrackProcess>> const goalHandle)
 {
     RCLCPP_INFO(this->get_logger(), "Received request to cancel active process.");
     (void)goalHandle;
@@ -101,30 +100,30 @@ rclcpp_action::CancelResponse Grid::handleCancel(
 }
 
 void Grid::handleAccepted(
-    std::shared_ptr<rclcpp_action::ServerGoalHandle<grid_interfaces::action::PerformTask>> const goalHandle)
+    std::shared_ptr<rclcpp_action::ServerGoalHandle<grid_interfaces::action::TrackProcess>> const goalHandle)
 {
-    std::thread{std::bind(&Grid::performTask, this, std::placeholders::_1), goalHandle}.detach();
+    std::thread{std::bind(&Grid::trackProcess, this, std::placeholders::_1), goalHandle}.detach();
 }
 
-void Grid::performTask(std::shared_ptr<rclcpp_action::ServerGoalHandle<grid_interfaces::action::PerformTask>> const goalHandle)
+void Grid::trackProcess(std::shared_ptr<rclcpp_action::ServerGoalHandle<grid_interfaces::action::TrackProcess>> const goalHandle)
 {
     rclcpp::Rate loopRate(2);
     auto const goal = goalHandle->get_goal();
-    auto feedback = std::make_shared<grid_interfaces::action::PerformTask::Feedback>();
-    auto result = std::make_shared<grid_interfaces::action::PerformTask::Result>();
+    auto feedback = std::make_shared<grid_interfaces::action::TrackProcess::Feedback>();
+    auto result = std::make_shared<grid_interfaces::action::TrackProcess::Result>();
     auto processId = goal->process_id;
 
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < 3; i++)
     {
         // If the action is cancelled finalise the path early (move tron) and return the path
         if(goalHandle->is_canceling())
         {
-            result->complete = m_gridSubsystem.finalisePath(processId);
+            result->final_path = m_gridSubsystem.finalisePath(processId);
             goalHandle->canceled(result);
             return;
         }
         // Next path segment
-        feedback->process_feedback = m_gridSubsystem.pathTrace();
+        feedback->partial_path = m_gridSubsystem.pathTrace();
 
         // Publish feedback
         goalHandle->publish_feedback(feedback);
@@ -133,7 +132,7 @@ void Grid::performTask(std::shared_ptr<rclcpp_action::ServerGoalHandle<grid_inte
 
     if(rclcpp::ok())
     {
-        result->complete = m_gridSubsystem.finalisePath(processId);
+        result->final_path = m_gridSubsystem.finalisePath(processId);
         goalHandle->succeed(result);
         RCLCPP_INFO(this->get_logger(), "Action successful");
     }

@@ -12,7 +12,7 @@ find_package(rosidl_default_generators REQUIRED)
 rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/AddProcess.srv"
   "srv/GetMessages.srv"
-  "action/PerformTask.action"
+  "action/TrackProcess.action"
 )
 
 ament_package()

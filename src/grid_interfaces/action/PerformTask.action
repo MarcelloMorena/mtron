@@ -1,5 +1,0 @@
-int32 process_id
----
-int32 complete
----
-int32 process_feedback

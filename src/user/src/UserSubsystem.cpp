@@ -24,7 +24,7 @@ void UserSubsystem::welcome() {
 int UserSubsystem::menu() {
     std::string menuOptions = "1 - Check messages\n"
                               "2 - Send message\n"
-                              "3 - Perform task\n";
+                              "3 - Track process\n";
     std::cout << menuOptions;
     
     std::string input;

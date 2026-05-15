@@ -7,9 +7,9 @@ std::string McpSubsystem::initialMessage(int32_t const processSearchTaskId) cons
 {
     std::string msg =
         "Hello user, thank you for logging in.\n"
-        "A rogue program has invaded the Grid is corrupting sectors!\n"
-        "We need to deploy Tron to save us, but his process ID has been erased from my memory files.\n"
-        "Use admin task " + std::to_string(processSearchTaskId) + " to find out the process ID for Tron, message me back with his ID and I will spin him up.\n";
+        "We need to test our process tracking on the Grid. I have deployed Tron to the Grid in sector " + std::to_string(processSearchTaskId) + ".\n"
+        "Run the process tracker, enter his sector number and his new sector will quickly flash on the screen 2 digits at a time, with the entire sector number flashing at the end.\n"
+        "Send back a message with his new sector to finalise the test, or message 'reset' to reset the test.\n";
     
     return msg;
 }

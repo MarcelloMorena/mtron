@@ -19,7 +19,9 @@ class Mcp : public rclcpp::Node
         rclcpp::Publisher<std_msgs::msg::String>::SharedPtr m_gridComsPub;
         rclcpp::Client<grid_interfaces::srv::AddProcess>::SharedPtr m_addGridProcessClient;
         McpSubsystem m_mcpSubsystem;
+        rclcpp::Subscription<std_msgs::msg::String>::SharedPtr m_mcpComsSub;
 
         void initialise();
         void sendInitialClientComs(rclcpp::Client<grid_interfaces::srv::AddProcess>::SharedFuture future);
+        // void handleGridComsSub(std_msgs::msg::String const& msg) const;
 };

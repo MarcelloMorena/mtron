@@ -4,8 +4,6 @@
 #include "User.hpp"
 #include "UserSubsystem.hpp"
 
-//#include <chrono>
-
 /**
  * Create User as a node with label "user" and set m_getMessagesClient as a client to Grid's
  * get_messages service
@@ -13,11 +11,10 @@
 User::User() : rclcpp::Node("user")
 {
     m_getMessagesClient = this->create_client<grid_interfaces::srv::GetMessages>("get_messages");
-    m_gridActionClient = rclcpp_action::create_client<grid_interfaces::action::PerformTask>(
+    m_gridActionClient = rclcpp_action::create_client<grid_interfaces::action::TrackProcess>(
         this,
-        "perform_task"
-    );
-    
+        "track_process");
+
     RCLCPP_INFO(this->get_logger(), "User started.");
     initialise();
 }
@@ -44,12 +41,11 @@ void User::menu()
         break;
 
     case 2:
-        // track process id
-        trackProcess();
+        // send message
         break;
 
     case 3:
-        // using task id do something to grid
+        trackProcess();
         break;
 
     default:
@@ -94,17 +90,17 @@ void User::trackProcess()
         RCLCPP_ERROR(this->get_logger(), "Grid action server not available after waiting.");
     }
 
-    auto goalMsg = grid_interfaces::action::PerformTask::Goal();
+    auto goalMsg = grid_interfaces::action::TrackProcess::Goal();
     goalMsg.process_id = m_userSubsystem.getProcessId();
 
-    auto sendGoalOptions = rclcpp_action::Client<grid_interfaces::action::PerformTask>::SendGoalOptions();
+    auto sendGoalOptions = rclcpp_action::Client<grid_interfaces::action::TrackProcess>::SendGoalOptions();
     sendGoalOptions.goal_response_callback = std::bind(&User::goalResponseCallback, this, std::placeholders::_1);
     sendGoalOptions.feedback_callback = std::bind(&User::feedbackCallback, this, std::placeholders::_1, std::placeholders::_2);
     sendGoalOptions.result_callback = std::bind(&User::resultCallback, this, std::placeholders::_1);
     m_gridActionClient->async_send_goal(goalMsg, sendGoalOptions);
 }
 
-void User::goalResponseCallback(rclcpp_action::ClientGoalHandle<grid_interfaces::action::PerformTask>::SharedPtr const &goalHandle)
+void User::goalResponseCallback(rclcpp_action::ClientGoalHandle<grid_interfaces::action::TrackProcess>::SharedPtr const &goalHandle)
 {
     if(!goalHandle)
     {
@@ -117,12 +113,21 @@ void User::goalResponseCallback(rclcpp_action::ClientGoalHandle<grid_interfaces:
     }
 }
 
-void User::feedbackCallback(rclcpp_action::ClientGoalHandle<grid_interfaces::action::PerformTask>::SharedPtr, std::shared_ptr<grid_interfaces::action::PerformTask::Feedback const> const feedback)
+void User::feedbackCallback(rclcpp_action::ClientGoalHandle<grid_interfaces::action::TrackProcess>::SharedPtr, std::shared_ptr<grid_interfaces::action::TrackProcess::Feedback const> const feedback)
 {
     // print feedback, sleep for 500ms, then erase with \r and spaces
+    auto numProgress = feedback->partial_path;
+    std::cout << std::to_string(numProgress) << std::flush;
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    std::cout<<"\r          \r";
 }
 
-void User::resultCallback(rclcpp_action::ClientGoalHandle<grid_interfaces::action::PerformTask>::WrappedResult const &result)
+void User::resultCallback(rclcpp_action::ClientGoalHandle<grid_interfaces::action::TrackProcess>::WrappedResult const &result)
 {
     // print final result, sleep for 500ms, then erase with \r and spaces
+    auto finalNum = result.result->final_path;
+    std::cout << std::to_string(finalNum) << std::flush;
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    std::cout<<"\r          \r";
+    menu();
 }
