@@ -1,5 +1,5 @@
-int32 process_id
+int32 process_pos
 ---
-int32 final_path
+int32 final_pos
 ---
-int32 partial_path
+int32 partial_pos

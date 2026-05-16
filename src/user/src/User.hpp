@@ -25,7 +25,7 @@ class User : public rclcpp::Node {
         void menu();
         void getMessages();
         void handleGetMessagesResponse(rclcpp::Client<grid_interfaces::srv::GetMessages>::SharedFuture future);
-        // void sendMessage();
+        void sendMessage();
         void trackProcess();
         void goalResponseCallback(rclcpp_action::ClientGoalHandle<grid_interfaces::action::TrackProcess>::SharedPtr const &goalHandle);
         void feedbackCallback(

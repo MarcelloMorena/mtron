@@ -14,6 +14,10 @@ User::User() : rclcpp::Node("user")
     m_gridActionClient = rclcpp_action::create_client<grid_interfaces::action::TrackProcess>(
         this,
         "track_process");
+    m_mcpComsPub = this->create_publisher<std_msgs::msg::String>(
+        "mcp_coms",
+        rclcpp::QoS(10).transient_local().reliable()
+    );
 
     RCLCPP_INFO(this->get_logger(), "User started.");
     initialise();
@@ -41,7 +45,7 @@ void User::menu()
         break;
 
     case 2:
-        // send message
+        sendMessage();
         break;
 
     case 3:
@@ -74,24 +78,41 @@ void User::getMessages()
  */
 void User::handleGetMessagesResponse(rclcpp::Client<grid_interfaces::srv::GetMessages>::SharedFuture future)
 {
-    RCLCPP_INFO(this->get_logger(), "Messages returned from the Grid.");
+    RCLCPP_INFO(this->get_logger(), "Message returned from the Grid.\n");
 
-    // Get the messages returned from the Grid and print to screen
-    std::vector<std::string> messages = future.get()->messages;
-    m_userSubsystem.printMessages(messages);
+    // Get the message returned from the Grid and print to screen
+    std::string message = future.get()->message;
+    m_userSubsystem.printMessage(message);
 
+    menu();
+}
+
+void User::sendMessage()
+{
+    auto message = std_msgs::msg::String();
+    message.data = m_userSubsystem.messageUserInput();
+    m_mcpComsPub->publish(message);
+    std::cout << "Check messages for MCP response.\n";
     menu();
 }
 
 void User::trackProcess()
 {
+    // Terrible fix for bug where invalid sector guesses broke m_gridActionClient
+    m_gridActionClient = rclcpp_action::create_client<grid_interfaces::action::TrackProcess>(
+        this,
+        "track_process"
+    );
+
     if(!m_gridActionClient->wait_for_action_server(std::chrono::seconds(5)))
     {
         RCLCPP_ERROR(this->get_logger(), "Grid action server not available after waiting.");
     }
 
     auto goalMsg = grid_interfaces::action::TrackProcess::Goal();
-    goalMsg.process_id = m_userSubsystem.getProcessId();
+    int processPosGuess = m_userSubsystem.getProcessPos();
+    goalMsg.process_pos = processPosGuess;
+    RCLCPP_INFO(this->get_logger(), "Requesting Grid to track process %d", processPosGuess);
 
     auto sendGoalOptions = rclcpp_action::Client<grid_interfaces::action::TrackProcess>::SendGoalOptions();
     sendGoalOptions.goal_response_callback = std::bind(&User::goalResponseCallback, this, std::placeholders::_1);
@@ -116,17 +137,17 @@ void User::goalResponseCallback(rclcpp_action::ClientGoalHandle<grid_interfaces:
 void User::feedbackCallback(rclcpp_action::ClientGoalHandle<grid_interfaces::action::TrackProcess>::SharedPtr, std::shared_ptr<grid_interfaces::action::TrackProcess::Feedback const> const feedback)
 {
     // print feedback, sleep for 500ms, then erase with \r and spaces
-    auto numProgress = feedback->partial_path;
-    std::cout << std::to_string(numProgress) << std::flush;
+    auto numProgress = feedback->partial_pos;
+    std::cout << "Moving Tron - " << std::to_string(numProgress) << std::flush;
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
-    std::cout<<"\r          \r";
+    std::cout<<"\rMoving Tron -           \r";
 }
 
 void User::resultCallback(rclcpp_action::ClientGoalHandle<grid_interfaces::action::TrackProcess>::WrappedResult const &result)
 {
     // print final result, sleep for 500ms, then erase with \r and spaces
-    auto finalNum = result.result->final_path;
-    std::cout << std::to_string(finalNum) << std::flush;
+    auto finalNum = result.result->final_pos;
+    std::cout << "Tron Moved - " << std::to_string(finalNum) << std::flush;
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
     std::cout<<"\r          \r";
     menu();

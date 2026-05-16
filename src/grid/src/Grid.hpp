@@ -4,8 +4,9 @@
 #include <vector>
 
 #include "grid_interfaces/action/track_process.hpp"
-#include "grid_interfaces/srv/get_messages.hpp"
 #include "grid_interfaces/srv/add_process.hpp"
+#include "grid_interfaces/srv/check_sector.hpp"
+#include "grid_interfaces/srv/get_messages.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
 #include "std_msgs/msg/string.hpp"
@@ -26,8 +27,9 @@ private:
     rclcpp::Service<grid_interfaces::srv::AddProcess>::SharedPtr m_addProcessService;
     rclcpp_action::Server<grid_interfaces::action::TrackProcess>::SharedPtr m_trackProcessActionServer;
     GridSubsystem m_gridSubsystem;
+    rclcpp::Service<grid_interfaces::srv::CheckSector>::SharedPtr m_checkSectorService;
 
-    void receiveGridComs(const std_msgs::msg::String::SharedPtr msg);
+    void receiveGridComs(std_msgs::msg::String::SharedPtr const msg);
     void getMessagesService(
         std::shared_ptr<grid_interfaces::srv::GetMessages::Request> request,
         std::shared_ptr<grid_interfaces::srv::GetMessages::Response> response
@@ -36,6 +38,8 @@ private:
         const std::shared_ptr<grid_interfaces::srv::AddProcess::Request> request,
         std::shared_ptr<grid_interfaces::srv::AddProcess::Response> response
     );
+
+    // track_process action server callbacks
     rclcpp_action::GoalResponse handleGoal(
         rclcpp_action::GoalUUID const &uuid,
         std::shared_ptr<grid_interfaces::action::TrackProcess::Goal const> goal);
@@ -47,4 +51,9 @@ private:
     );
     void trackProcess(
         std::shared_ptr<rclcpp_action::ServerGoalHandle<grid_interfaces::action::TrackProcess>> const goalHandle);
+
+    void checkSectorService(
+        const std::shared_ptr<grid_interfaces::srv::CheckSector::Request> request,
+        std::shared_ptr<grid_interfaces::srv::CheckSector::Response> response
+    );
 };

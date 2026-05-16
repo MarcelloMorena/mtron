@@ -31,7 +31,14 @@ Grid::Grid() : rclcpp::Node("grid")
         "track_process",
         std::bind(&Grid::handleGoal, this, std::placeholders::_1, std::placeholders::_2),
         std::bind(&Grid::handleCancel, this, std::placeholders::_1),
-        std::bind(&Grid::handleAccepted, this, std::placeholders::_1));
+        std::bind(&Grid::handleAccepted, this, std::placeholders::_1)
+    );
+
+    // Create check_sector service (for Mcp)
+    m_checkSectorService = this->create_service<grid_interfaces::srv::CheckSector>(
+        "check_sector",
+        std::bind(&Grid::checkSectorService, this, std::placeholders::_1, std::placeholders::_2)
+    );
 
     RCLCPP_INFO(this->get_logger(), "Grid started.");
 }
@@ -39,7 +46,7 @@ Grid::Grid() : rclcpp::Node("grid")
 /**
  * Callback for messages posted to grid_coms topic
  */
-void Grid::receiveGridComs(const std_msgs::msg::String::SharedPtr msg) {
+void Grid::receiveGridComs(std_msgs::msg::String::SharedPtr const msg) {
     RCLCPP_INFO(this->get_logger(), "Received coms from MCP:\n\n%s", msg->data.c_str());
 
     // Add to messages vector
@@ -56,25 +63,26 @@ void Grid::getMessagesService(std::shared_ptr<grid_interfaces::srv::GetMessages:
 
     // Disable compiler warnings for unused request variable
     (void)request;
-    response->messages = m_gridSubsystem.getMessages();
+    response->message = m_gridSubsystem.getMessage();
 }
 
 /**
  * Callback for request made by Mcp to add_process service.
- * Adds input process name to processes list with a randomly generated ID (no ID doubles)
+ * Adds process to Grid with a randomly generated pos
  */
 void Grid::addProcessService(const std::shared_ptr<grid_interfaces::srv::AddProcess::Request> request,
                                 std::shared_ptr<grid_interfaces::srv::AddProcess::Response> response)
 {
-    RCLCPP_INFO(this->get_logger(), "MCP requested to add process %s.", request->process_name.c_str());
+    RCLCPP_INFO(this->get_logger(), "MCP requested to add process.");
     
-    // Add process name to grid and get the randomly generated ID
-    int32_t processId = m_gridSubsystem.addProcess(request->process_name);
+    (void)request;
+    // Add process to grid and get the randomly generated position
+    int32_t processPos = m_gridSubsystem.addProcess();
 
-    RCLCPP_INFO(this->get_logger(), "Added process %s with ID %d.", request->process_name.c_str(), processId);
+    RCLCPP_INFO(this->get_logger(), "Added process with position %d.", processPos);
 
     // Return processId to Mcp
-    response->process_id = processId;
+    response->process_pos = processPos;
 }
 
 rclcpp_action::GoalResponse Grid::handleGoal(
@@ -82,12 +90,12 @@ rclcpp_action::GoalResponse Grid::handleGoal(
     std::shared_ptr<grid_interfaces::action::TrackProcess::Goal const> goal)
 {
     (void)uuid;
-    if(m_gridSubsystem.processExists(goal->process_id))
+    if(m_gridSubsystem.processExists(goal->process_pos))
     {
-        RCLCPP_INFO(this->get_logger(), "Received valid task request for process ID %d, accepting.", goal->process_id);
+        RCLCPP_INFO(this->get_logger(), "Received valid task request for process position %d, accepting.", goal->process_pos);
         return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
     }
-    RCLCPP_INFO(this->get_logger(), "Received invalid task request for process ID %d, rejecting.", goal->process_id);
+    RCLCPP_INFO(this->get_logger(), "Received invalid task request for process position %d, rejecting.", goal->process_pos);
     return rclcpp_action::GoalResponse::REJECT;
 }
 
@@ -111,19 +119,22 @@ void Grid::trackProcess(std::shared_ptr<rclcpp_action::ServerGoalHandle<grid_int
     auto const goal = goalHandle->get_goal();
     auto feedback = std::make_shared<grid_interfaces::action::TrackProcess::Feedback>();
     auto result = std::make_shared<grid_interfaces::action::TrackProcess::Result>();
-    auto processId = goal->process_id;
 
-    for (int i = 0; i < 3; i++)
+    for (int i = 0; i < 4; i++)
     {
         // If the action is cancelled finalise the path early (move tron) and return the path
         if(goalHandle->is_canceling())
         {
-            result->final_path = m_gridSubsystem.finalisePath(processId);
+            result->final_pos = m_gridSubsystem.finalisePath();
             goalHandle->canceled(result);
             return;
         }
-        // Next path segment
-        feedback->partial_path = m_gridSubsystem.pathTrace();
+
+        int32_t tronPath = m_gridSubsystem.pathTrace();
+        RCLCPP_INFO(this->get_logger(), "Moving Tron - %d", tronPath);
+
+        // Next position segment
+        feedback->partial_pos = tronPath;
 
         // Publish feedback
         goalHandle->publish_feedback(feedback);
@@ -132,8 +143,17 @@ void Grid::trackProcess(std::shared_ptr<rclcpp_action::ServerGoalHandle<grid_int
 
     if(rclcpp::ok())
     {
-        result->final_path = m_gridSubsystem.finalisePath(processId);
+        int32_t finalSectorPos = m_gridSubsystem.finalisePath();
+        RCLCPP_INFO(this->get_logger(), "Final Tron position - %d", finalSectorPos);
+        result->final_pos = finalSectorPos;
         goalHandle->succeed(result);
         RCLCPP_INFO(this->get_logger(), "Action successful");
     }
+}
+
+void Grid::checkSectorService(const std::shared_ptr<grid_interfaces::srv::CheckSector::Request> request,
+                                std::shared_ptr<grid_interfaces::srv::CheckSector::Response> response)
+{
+    response->correct = m_gridSubsystem.checkSector(request->sector);
+    response->new_sector = m_gridSubsystem.addProcess();
 }

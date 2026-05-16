@@ -10,6 +10,7 @@ class UserSubsystem {
     public:
         void welcome();
         int menu();
-        void printMessages(std::vector<std::string> messages);
-        int getProcessId();
+        void printMessage(std::string message);
+        int getProcessPos();
+        std::string messageUserInput();
 };

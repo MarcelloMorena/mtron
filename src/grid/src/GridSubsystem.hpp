@@ -12,16 +12,16 @@
 class GridSubsystem
 {
     public:
-        int32_t addProcess(std::string processName);
+        int32_t addProcess();
         void addMessage(std::string newMessage);
-        // TODO: does making the vector returned const mean calling methods can't add/remove from it?
-        std::vector<std::string> getMessages();
-        bool processExists(int32_t processId);
+        std::string getMessage();
+        bool processExists(int32_t processPos);
         int32_t pathTrace();
-        int32_t finalisePath(int32_t processId);
+        int32_t finalisePath();
+        bool checkSector(int32_t sectorGuess);
     private:
-        std::unordered_map<int32_t, std::string> m_processes;
-        std::vector<std::string> m_messages;
+        int32_t m_processPos;
+        std::string m_message;
         std::random_device m_rd;
         std::mt19937 m_generator {m_rd()};
         std::string m_path;

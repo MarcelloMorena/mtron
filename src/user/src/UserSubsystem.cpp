@@ -11,7 +11,7 @@ void UserSubsystem::welcome() {
     std::string welcome = "===============\nENCOM MAINFRAME\n===============\n"
                           "\nEstablishing Grid connection...\n"
                           "Connection established.\n"
-                          "Welcome to the Grid.\n\n";
+                          "Welcome to the Grid.\n";
 
     std::cout << welcome;
 }
@@ -22,9 +22,10 @@ void UserSubsystem::welcome() {
  * TODO: write @return
  */
 int UserSubsystem::menu() {
-    std::string menuOptions = "1 - Check messages\n"
+    std::string menuOptions = "\n1 - Check messages\n"
                               "2 - Send message\n"
-                              "3 - Track process\n";
+                              "3 - Track process\n"
+                              "User>> ";
     std::cout << menuOptions;
     
     std::string input;
@@ -32,11 +33,11 @@ int UserSubsystem::menu() {
     // Get user input, loop until input is valid
     while(true){
 
-        // If input stream is invalid
+        // Get input, if stream is invalid return
         if(!std::getline(std::cin, input)){
             return -1;
         }
-
+        std::cout << "\n";
         if (input == "1")
         {
             return 1;
@@ -61,17 +62,14 @@ int UserSubsystem::menu() {
  * 
  * TODO: write @param
  */
-void UserSubsystem::printMessages(std::vector<std::string> messages)
+void UserSubsystem::printMessage(std::string message)
 {
-    for (auto const& msg : messages)
-    {
-        std::cout << msg << "\n";
-    }
+    std::cout << message << "\n";
 }
 
-int UserSubsystem::getProcessId()
+int UserSubsystem::getProcessPos()
 {
-    std::cout << "Enter process ID.\n";
+    std::cout << "Enter process position: ";
     int input;
     
     // Keep getting input until valid (i.e. is an int)
@@ -81,6 +79,16 @@ int UserSubsystem::getProcessId()
         std::cin.clear();
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     }
+    // Remove trailing newline char
+    std::cin.ignore();
+    return input;
+}
 
+std::string UserSubsystem::messageUserInput()
+{
+    std::string input;
+    std::cout << "Enter message for MCP: ";
+    std::getline(std::cin, input);
+    std::cout << "\n";
     return input;
 }

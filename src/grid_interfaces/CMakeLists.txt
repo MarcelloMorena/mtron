@@ -13,6 +13,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/AddProcess.srv"
   "srv/GetMessages.srv"
   "action/TrackProcess.action"
+  "srv/CheckSector.srv"
 )
 
 ament_package()
