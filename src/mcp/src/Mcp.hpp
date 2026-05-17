@@ -10,7 +10,13 @@
 #include "McpSubsystem.hpp"
 
 /**
- * TODO: write doc
+ * Master Control Program.
+ * Handles communication with the User to manage the Grid process tracking test.
+ *
+ * - Publisher to mcp/grid_coms topic (used by Grid).
+ * - Client to grid/add_process_request service.
+ * - Subscriber to user/mcp_coms topic.
+ * - Client to grid/check_sector_request service.
  */
 class Mcp : public rclcpp::Node
 {

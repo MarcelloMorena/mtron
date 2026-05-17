@@ -4,34 +4,54 @@
 #include "McpSubsystem.hpp"
 
 /**
- * TODO: write doc with @param and @return
+ * Construct initial HELP message for the User, providing them with the first sector position.
+ * 
+ * @param sectorPos Tron's initial sector position to supply to the User.
+ * 
+ * @return HELP message with sectorPos embedded to send to the User on startup.
  */
-std::string McpSubsystem::initialMessage(int32_t const processSearchTaskId) const
+std::string McpSubsystem::initialMessage(int32_t const sectorPos) const
 {
     std::string msg =
         "Hello user, thank you for logging in.\n"
-        "We need to test our process tracking on the Grid. I have deployed Tron to the Grid in sector " + std::to_string(processSearchTaskId) + ".\n"
+        "We need to test our process tracking on the Grid. I have deployed Tron to the Grid in sector " +std::to_string(sectorPos) + ".\n"
         "Run the process tracker, enter his sector number and his new sector will quickly flash on the screen a digit at a time.\n"
         "The entire sector number will flash once at the end.\n"
         "Send back a message with his new sector to finalise the test, or message 'reset' to reset the test.\nEND OF LINE";
-    
     return msg;
 }
 
+/**
+ * Check if user input is an integer.
+ * 
+ * @param userMessageInput Input from the user to check.
+ * 
+ * @return True if string is all digits, else False.
+ */
 bool McpSubsystem::checkInputInteger(std::string const userMessageInput) const
 {
+    // Convert user input to string stream.
     std::istringstream iss(userMessageInput);
-    int integer;
 
-    // Try to put the user input into an integer variable, if the stream is finished the whole string is an integer
+    // Try to put the user input into an integer variable, if the stream is finished after the whole string is digits.
+    int integer;
     bool isInt = (iss >> integer) && iss.eof();
     return isInt;
 }
 
+/**
+ * Check if user input is 'reset'.
+ * 
+ * @param userMessageInput Input from the user to check.
+ * 
+ * @return True if string is 'reset', else False.
+ * 
+ * @note Case-insensitive.
+ */
 bool McpSubsystem::checkResetInput(std::string const userMessageInput) const
 {
     std::string str = userMessageInput;
-    // Convert all characters to lower case
+    // Convert all characters to lower case.
     std::transform(
         str.begin(),
         str.end(),

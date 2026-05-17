@@ -5,8 +5,8 @@
 #include "UserSubsystem.hpp"
 
 /**
- * Constructor - create a node with label "user" and create topic publisher and service and action
- * clients. Initialise the I/O loop.
+ * Create a node with label "user" and create publisher and service and action clients.
+ * Initialises the I/O menu loop.
  */
 User::User() : rclcpp::Node("user")
 {

@@ -9,7 +9,11 @@
 #include "UserSubsystem.hpp"
 
 /**
- * Handle user I/O to interface with the other two nodes.
+ * Handle user I/O for the Grid process tracking test.
+ * 
+ * - Client to grid/get_messages_request service.
+ * - Client to grid/track_process_request action.
+ * - Publisher to user/mcp_coms topic (used by MCP).
  */
 class User : public rclcpp::Node {
     public:

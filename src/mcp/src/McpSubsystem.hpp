@@ -3,12 +3,11 @@
 #include <string>
 
 /**
- * TODO: write doc
+ * Subsystem to handle non-ROS related functionality of Mcp class, mainly I/O.
  */
 class McpSubsystem {
     public:
-        // TODO: does this need to be const?
-        std::string initialMessage(int32_t const processSearchTaskId) const;
+        std::string initialMessage(int32_t const sectorPos) const;
         bool checkInputInteger(std::string const userMessageInput) const;
         bool checkResetInput(std::string const userMessageInput) const;
 };
