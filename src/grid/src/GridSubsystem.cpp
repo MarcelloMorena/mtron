@@ -1,3 +1,4 @@
+#include <iostream>
 #include <random>
 
 #include "GridSubsystem.hpp"
@@ -41,7 +42,7 @@ bool GridSubsystem::processExists(int32_t processPos)
  */
 int32_t GridSubsystem::pathTrace()
 {
-    std::uniform_int_distribution<int32_t> distribution(0, 9);
+    std::uniform_int_distribution<int32_t> distribution(1, 9);
     int32_t nextPath = distribution(m_generator);
     m_path = m_path + std::to_string(nextPath);
     return nextPath;

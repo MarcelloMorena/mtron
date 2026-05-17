@@ -19,7 +19,7 @@ User::User() : rclcpp::Node("user")
         rclcpp::QoS(10).transient_local().reliable()
     );
 
-    RCLCPP_INFO(this->get_logger(), "User started.");
+    // RCLCPP_INFO(this->get_logger(), "User started.");
     initialise();
 }
 
@@ -62,7 +62,7 @@ void User::menu()
  */
 void User::getMessages()
 {
-    RCLCPP_INFO(this->get_logger(), "Getting messages from the Grid.");
+    // RCLCPP_INFO(this->get_logger(), "Getting messages from the Grid.");
 
     // Send request to Grid get_messages services, set handleGetMessagesResponse as callback
     auto request = std::make_shared<grid_interfaces::srv::GetMessages::Request>();
@@ -78,7 +78,7 @@ void User::getMessages()
  */
 void User::handleGetMessagesResponse(rclcpp::Client<grid_interfaces::srv::GetMessages>::SharedFuture future)
 {
-    RCLCPP_INFO(this->get_logger(), "Message returned from the Grid.\n");
+    // RCLCPP_INFO(this->get_logger(), "Message returned from the Grid.\n");
 
     // Get the message returned from the Grid and print to screen
     std::string message = future.get()->message;
@@ -112,7 +112,7 @@ void User::trackProcess()
     auto goalMsg = grid_interfaces::action::TrackProcess::Goal();
     int processPosGuess = m_userSubsystem.getProcessPos();
     goalMsg.process_pos = processPosGuess;
-    RCLCPP_INFO(this->get_logger(), "Requesting Grid to track process %d", processPosGuess);
+    // RCLCPP_INFO(this->get_logger(), "Requesting Grid to track process %d", processPosGuess);
 
     auto sendGoalOptions = rclcpp_action::Client<grid_interfaces::action::TrackProcess>::SendGoalOptions();
     sendGoalOptions.goal_response_callback = std::bind(&User::goalResponseCallback, this, std::placeholders::_1);
@@ -125,17 +125,19 @@ void User::goalResponseCallback(rclcpp_action::ClientGoalHandle<grid_interfaces:
 {
     if(!goalHandle)
     {
-        RCLCPP_INFO(this->get_logger(), "Invalid process ID!");
+        // RCLCPP_INFO(this->get_logger(), "Invalid process ID!");
+        std::cout << "Invalid process position!\n";
         menu();
     }
     else
     {
-        RCLCPP_INFO(this->get_logger(), "Calling action on Grid");
+        // RCLCPP_INFO(this->get_logger(), "Calling action on Grid");
     }
 }
 
 void User::feedbackCallback(rclcpp_action::ClientGoalHandle<grid_interfaces::action::TrackProcess>::SharedPtr, std::shared_ptr<grid_interfaces::action::TrackProcess::Feedback const> const feedback)
 {
+    // RCLCPP_INFO(this->get_logger(), "FEEDBACK CALLED\n");
     // print feedback, sleep for 500ms, then erase with \r and spaces
     auto numProgress = feedback->partial_pos;
     std::cout << "Moving Tron - " << std::to_string(numProgress) << std::flush;
@@ -149,6 +151,6 @@ void User::resultCallback(rclcpp_action::ClientGoalHandle<grid_interfaces::actio
     auto finalNum = result.result->final_pos;
     std::cout << "Tron Moved - " << std::to_string(finalNum) << std::flush;
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
-    std::cout<<"\r          \r";
+    std::cout<<"\r                             \r";
     menu();
 }

@@ -115,7 +115,8 @@ void Grid::handleAccepted(
 
 void Grid::trackProcess(std::shared_ptr<rclcpp_action::ServerGoalHandle<grid_interfaces::action::TrackProcess>> const goalHandle)
 {
-    rclcpp::Rate loopRate(2);
+    rclcpp::Rate loopRate(1);
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
     auto const goal = goalHandle->get_goal();
     auto feedback = std::make_shared<grid_interfaces::action::TrackProcess::Feedback>();
     auto result = std::make_shared<grid_interfaces::action::TrackProcess::Result>();
