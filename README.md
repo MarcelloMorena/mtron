@@ -23,6 +23,6 @@ by publishing it to a **topic**. The MCP checks with the Grid if the user sent t
 
 # Launching
 In the parent folder 'mtron' run `colcon build`, source the overlay using `source install/setup.bash`,
-then launch the three nodes in separate terminals using `ros2 launch grid grid`,
-`ros2 launch mcp mcp`, and `ros2 launch user user`. User interaction occurs only in the terminal
+then launch the three nodes in separate terminals using `ros2 run grid grid`,
+`ros2 run mcp mcp`, and `ros2 run user user`. User interaction occurs only in the terminal
 running the user node.
