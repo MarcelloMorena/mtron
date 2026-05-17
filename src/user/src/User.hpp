@@ -1,15 +1,15 @@
 #pragma once
 
-#include "grid_interfaces/srv/get_messages.hpp"
-#include "grid_interfaces/action/track_process.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
 #include "std_msgs/msg/string.hpp"
 
+#include "grid_interfaces/srv/get_messages.hpp"
+#include "grid_interfaces/action/track_process.hpp"
 #include "UserSubsystem.hpp"
 
 /**
- * TODO: write doc
+ * Handle user I/O to interface with the other two nodes.
  */
 class User : public rclcpp::Node {
     public:
@@ -29,7 +29,7 @@ class User : public rclcpp::Node {
         void trackProcess();
         void goalResponseCallback(rclcpp_action::ClientGoalHandle<grid_interfaces::action::TrackProcess>::SharedPtr const &goalHandle);
         void feedbackCallback(
-            rclcpp_action::ClientGoalHandle<grid_interfaces::action::TrackProcess>::SharedPtr,
+            rclcpp_action::ClientGoalHandle<grid_interfaces::action::TrackProcess>::SharedPtr const& goalHandle,
             std::shared_ptr<grid_interfaces::action::TrackProcess::Feedback const> const feedback
         );
         void resultCallback(rclcpp_action::ClientGoalHandle<grid_interfaces::action::TrackProcess>::WrappedResult const &result);
