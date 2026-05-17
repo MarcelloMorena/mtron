@@ -52,6 +52,11 @@ void User::menu()
         trackProcess();
         break;
 
+    case 4:
+        RCLCPP_INFO(this->get_logger(), "Shutting down.");
+        rclcpp::shutdown();
+        return;
+
     default:
         break;
     }

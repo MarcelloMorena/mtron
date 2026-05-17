@@ -24,7 +24,8 @@ void UserSubsystem::welcome() {
 int UserSubsystem::menu() {
     std::string menuOptions = "\n1 - Check messages\n"
                               "2 - Send message\n"
-                              "3 - Track process\n" +
+                              "3 - Track process\n"
+                              "4 - Sign out\n" +
                               std::string(m_BlueAnsi) + "User>> ";
     std::cout << menuOptions;
     
@@ -52,6 +53,10 @@ int UserSubsystem::menu() {
         else if (input == "3")
         {
             return 3;
+        }
+        else if (input == "4")
+        {
+            return 4;
         }
         else
         {
