@@ -14,7 +14,15 @@
 #include "GridSubsystem.hpp"
 
 /**
- * TODO: Write class comment
+ * The Grid.
+ * Keeps messages from MCP for the User to retrieve.
+ * Runs process tracker test.
+ *
+ * - Subscriber to mcp/grid_coms.
+ * - Server to grid/get_messages_request service.
+ * - Server to grid/add_process_request service.
+ * - Server to grid/track_process_request action.
+ * - Server to grid/check_sector_request service.
  */
 class Grid : public rclcpp::Node
 {
@@ -31,18 +39,17 @@ private:
 
     void receiveGridComs(std_msgs::msg::String::SharedPtr const msg);
     void getMessagesService(
-        std::shared_ptr<grid_interfaces::srv::GetMessages::Request> request,
+        std::shared_ptr<grid_interfaces::srv::GetMessages::Request> const request,
         std::shared_ptr<grid_interfaces::srv::GetMessages::Response> response
     );
     void addProcessService(
-        const std::shared_ptr<grid_interfaces::srv::AddProcess::Request> request,
+        std::shared_ptr<grid_interfaces::srv::AddProcess::Request> const request,
         std::shared_ptr<grid_interfaces::srv::AddProcess::Response> response
     );
-
-    // track_process action server callbacks
     rclcpp_action::GoalResponse handleGoal(
         rclcpp_action::GoalUUID const &uuid,
-        std::shared_ptr<grid_interfaces::action::TrackProcess::Goal const> goal);
+        std::shared_ptr<grid_interfaces::action::TrackProcess::Goal const> goal
+    );
     rclcpp_action::CancelResponse handleCancel(
         std::shared_ptr<rclcpp_action::ServerGoalHandle<grid_interfaces::action::TrackProcess>> const goalHandle
     );
@@ -50,8 +57,8 @@ private:
         std::shared_ptr<rclcpp_action::ServerGoalHandle<grid_interfaces::action::TrackProcess>> const goalHandle
     );
     void trackProcess(
-        std::shared_ptr<rclcpp_action::ServerGoalHandle<grid_interfaces::action::TrackProcess>> const goalHandle);
-
+        std::shared_ptr<rclcpp_action::ServerGoalHandle<grid_interfaces::action::TrackProcess>> const goalHandle
+    );
     void checkSectorService(
         const std::shared_ptr<grid_interfaces::srv::CheckSector::Request> request,
         std::shared_ptr<grid_interfaces::srv::CheckSector::Response> response

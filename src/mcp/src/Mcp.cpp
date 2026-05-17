@@ -4,7 +4,7 @@
 #include "McpSubsystem.hpp"
 
 /**
- * Create a node with label "mcp" create publisher, subscriber, and service clients.
+ * Create a node with label "mcp" and create publisher, subscriber, and service clients.
  * Sends initial help message to the Grid.
  */
 Mcp::Mcp() : rclcpp::Node("mcp")

@@ -7,7 +7,8 @@
 #include <vector>
 
 /**
- * TODO: write doc
+ * Subsystem to handle non-ROS related functionality of Grid class.
+ * Saves MCP messages, tracks current sector location, manages the state for process tracking test.
  */
 class GridSubsystem
 {
