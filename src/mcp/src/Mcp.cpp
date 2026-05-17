@@ -11,25 +11,25 @@ Mcp::Mcp() : rclcpp::Node("mcp")
 {
     // Create a publisher to grid_coms topic
     m_gridComsPub = this->create_publisher<std_msgs::msg::String>(
-        "grid_coms",
+        "mcp/grid_coms",
         rclcpp::QoS(10).transient_local().reliable()
     );
 
     // Create a client for Grid's add_process service and wait for it to be available
-    m_addGridProcessClient = this->create_client<grid_interfaces::srv::AddProcess>("add_process");
+    m_addGridProcessClient = this->create_client<grid_interfaces::srv::AddProcess>("grid/add_process_request");
     while (!m_addGridProcessClient->wait_for_service(std::chrono::seconds(5)))
     {
         RCLCPP_INFO(this->get_logger(), "Waiting for Grid's add_process service timed out. Trying again.");
     }
 
     m_mcpComsSub = this->create_subscription<std_msgs::msg::String>(
-        "mcp_coms",
+        "user/mcp_coms",
         rclcpp::QoS(10).transient_local().reliable(),
         std::bind(&Mcp::handleMcpComsSub, this, std::placeholders::_1)
     );
 
     // Create a client for Grid's check_sector service and wait for it to be available
-    m_checkSectorClient = this->create_client<grid_interfaces::srv::CheckSector>("check_sector");
+    m_checkSectorClient = this->create_client<grid_interfaces::srv::CheckSector>("grid/check_sector_request");
     while (!m_checkSectorClient->wait_for_service(std::chrono::seconds(5)))
     {
         RCLCPP_INFO(this->get_logger(), "Waiting for Grid's check_sector service timed out. Trying again.");

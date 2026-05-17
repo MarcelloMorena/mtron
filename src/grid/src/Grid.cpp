@@ -8,27 +8,27 @@ Grid::Grid() : rclcpp::Node("grid")
 {
     // Create a subscription to grid_coms topic
     m_gridComsSub = this->create_subscription<std_msgs::msg::String>(
-        "grid_coms",
+        "mcp/grid_coms",
         rclcpp::QoS(10).transient_local().reliable(),
         std::bind(&Grid::receiveGridComs, this, std::placeholders::_1)
     );
 
     // Create get_messages service (for User)
     m_getMessagesService = this->create_service<grid_interfaces::srv::GetMessages>(
-        "get_messages",
+        "grid/get_messages_request",
         std::bind(&Grid::getMessagesService, this, std::placeholders::_1, std::placeholders::_2)
     );
 
     // Create add_process service (for Mcp)
     m_addProcessService = this->create_service<grid_interfaces::srv::AddProcess>(
-        "add_process",
+        "grid/add_process_request",
         std::bind(&Grid::addProcessService, this, std::placeholders::_1, std::placeholders::_2)
     );
 
     // Create track_process action (for User)
     m_trackProcessActionServer = rclcpp_action::create_server<grid_interfaces::action::TrackProcess>(
         this,
-        "track_process",
+        "grid/track_process_request",
         std::bind(&Grid::handleGoal, this, std::placeholders::_1, std::placeholders::_2),
         std::bind(&Grid::handleCancel, this, std::placeholders::_1),
         std::bind(&Grid::handleAccepted, this, std::placeholders::_1)
@@ -36,7 +36,7 @@ Grid::Grid() : rclcpp::Node("grid")
 
     // Create check_sector service (for Mcp)
     m_checkSectorService = this->create_service<grid_interfaces::srv::CheckSector>(
-        "check_sector",
+        "grid/check_sector_request",
         std::bind(&Grid::checkSectorService, this, std::placeholders::_1, std::placeholders::_2)
     );
 

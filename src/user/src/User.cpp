@@ -10,12 +10,12 @@
  */
 User::User() : rclcpp::Node("user")
 {
-    m_getMessagesClient = this->create_client<grid_interfaces::srv::GetMessages>("get_messages");
+    m_getMessagesClient = this->create_client<grid_interfaces::srv::GetMessages>("grid/get_messages_request");
     m_gridActionClient = rclcpp_action::create_client<grid_interfaces::action::TrackProcess>(
         this,
-        "track_process");
+        "grid/track_process_request");
     m_mcpComsPub = this->create_publisher<std_msgs::msg::String>(
-        "mcp_coms",
+        "user/mcp_coms",
         rclcpp::QoS(10).transient_local().reliable()
     );
 
@@ -101,7 +101,7 @@ void User::trackProcess()
     // Terrible fix for bug where invalid sector guesses broke m_gridActionClient
     m_gridActionClient = rclcpp_action::create_client<grid_interfaces::action::TrackProcess>(
         this,
-        "track_process"
+        "grid/track_process_request"
     );
 
     if(!m_gridActionClient->wait_for_action_server(std::chrono::seconds(5)))
